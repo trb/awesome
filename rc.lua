@@ -41,8 +41,8 @@ end
 beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "konsole"
-editor = os.getenv("EDITOR") or "kwrite"
+terminal = "gnome-terminal"
+editor = os.getenv("EDITOR") or "gedit"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -81,8 +81,8 @@ end
  -- {{{ Tags
  -- Define a tag table which will hold all screen tags.
  tags = {
-   names  = { "main", "comms", "vertical-dev", "vertical-browsing", "browsing", 6, 7, 8, 9 },
-   layout = { layouts[10], layouts[7], layouts[5], layouts[4], layouts[2],
+   names  = { "main", "comms", "terminals", "editors", "browsing", 6, 7, 8, 9 },
+   layout = { layouts[6], layouts[7], layouts[7], layouts[6], layouts[2],
               layouts[12], layouts[9], layouts[3], layouts[7]
  }}
  for s = 1, screen.count() do
@@ -90,10 +90,7 @@ end
      tags[s] = awful.tag(tags.names, s, tags.layout)
  end
  
- awful.tag.viewidx(3, 3)
- awful.tag.viewidx(2, 4)
  awful.tag.viewidx(0, 1)
- awful.tag.viewidx(4, 2)
  
  -- }}}
 
@@ -114,7 +111,6 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 
--- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
@@ -256,6 +252,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
+-- could also work: /usr/lib/indicator-session/gtk-logout-helper --logout
     awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("kscreenlocker") end),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
@@ -274,7 +271,7 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     --awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
-    awful.key({ modkey,           }, "r",     function () awful.util.spawn("synapse") end),
+    awful.key({ modkey,           }, "r",     function () awful.util.spawn("kupfer") end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -389,7 +386,7 @@ awful.rules.rules = {
     { rule = { class = "gimp" },
       properties = { floating = true } },
       
-    { rule = { class = "Synapse" },
+    { rule = { class = "Kupfer" },
       properties = { floating = true } },
       
     {
@@ -482,3 +479,5 @@ end)
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+-- Standard awesome library
+local gears = require("gears")
