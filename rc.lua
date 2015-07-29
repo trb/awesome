@@ -20,6 +20,16 @@ if awesome.startup_errors then
                      text = awesome.startup_errors })
 end
 
+-- Override awesome.quit when we're using GNOME
+_awesome_quit = awesome.quit
+awesome.quit = function()
+    if os.getenv("DESKTOP_SESSION") == "awesome-gnome" then
+        os.execute("/usr/bin/gnome-session-quit")
+    else
+        _awesome_quit()
+    end
+end
+
 -- Handle runtime errors after startup
 do
     local in_error = false
@@ -41,8 +51,8 @@ end
 beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "konsole"
-editor = os.getenv("EDITOR") or "kwrite"
+terminal = "gnome-terminal"
+editor = os.getenv("EDITOR") or "gedit"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -68,6 +78,21 @@ local layouts =
     awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier
 }
+
+local layouts_named = {
+    floating = awful.layout.suit.floating,
+    tile = awful.layout.suit.tile,
+    tile_left = awful.layout.suit.tile.left,
+    tile_bottom = awful.layout.suit.tile.bottom,
+    tile_top = awful.layout.suit.tile.top,
+    tile_fair = awful.layout.suit.fair,
+    tile_fair_horizontal = awful.layout.suit.fair.horizontal,
+    spiral = awful.layout.suit.spiral,
+    dwindle = awful.layout.suit.spiral.dwindle,
+    max = awful.layout.suit.max,
+    fullscreen = awful.layout.suit.max.fullscreen,
+    magnifier = awful.layout.suit.magnifier
+}
 -- }}}
 
 -- {{{ Wallpaper
@@ -81,19 +106,29 @@ end
  -- {{{ Tags
  -- Define a tag table which will hold all screen tags.
  tags = {
-   names  = { "main", "comms", "vertical-dev", "vertical-browsing", "browsing", 6, 7, 8, 9 },
-   layout = { layouts[10], layouts[7], layouts[5], layouts[4], layouts[2],
-              layouts[12], layouts[9], layouts[3], layouts[7]
- }}
+   names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
+   layout = {
+      layouts_named.tile,
+      layouts_named.tile_fair_horizontal,
+      layouts_named.tile_fair_horizontal,
+      layouts_named.fullscreen,
+      layouts_named.tile,
+      layouts_named.tile,
+      layouts_named.tile,
+      layouts_named.tile,
+      layouts_named.tile
+   }
+ --   layout = { layouts[10], layouts[7], layouts[5], layouts[4], layouts[2],
+ --              layouts[12], layouts[9], layouts[3], layouts[7]
+ -- }
+ }
  for s = 1, screen.count() do
      -- Each screen has its own tag table.
      tags[s] = awful.tag(tags.names, s, tags.layout)
  end
  
- awful.tag.viewidx(3, 3)
- awful.tag.viewidx(2, 4)
  awful.tag.viewidx(0, 1)
- awful.tag.viewidx(4, 2)
+ awful.tag.viewidx(0, 2)
  
  -- }}}
 
@@ -256,7 +291,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
-    awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("kscreenlocker") end),
+    awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("gnome-screensaver-command --lock") end),
 
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
     awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
@@ -274,7 +309,7 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     --awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
-    awful.key({ modkey,           }, "r",     function () awful.util.spawn("synapse") end),
+    awful.key({ modkey,           }, "r",     function () awful.util.spawn("kupfer") end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -382,19 +417,19 @@ awful.rules.rules = {
     {
       -- this should match hangout windows
       rule_any = { class = {"Google-chrome", "Google-chrome-stable"} },
-      except_any = { instance = {"Google-chrome", "Google-chrome-stable"} },
-      properties = { tag = tags[1][2] }
+      except_any = { instance = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable"} },
+      properties = { tag = tags[1][3] }
     },
       
     { rule = { class = "gimp" },
       properties = { floating = true } },
       
-    { rule = { class = "Synapse" },
+    { rule = { class = "Kupfer" },
       properties = { floating = true } },
       
     {
       rule = {
-        class = "jetbrains-phpstorm",
+        class = "jetbrains-idea",
         instance = "sun-awt-X11-XDialogPeer"
       }, 
       properties = {
