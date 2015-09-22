@@ -234,6 +234,12 @@ globalkeys = awful.util.table.join(
         end),
     awful.key({ modkey,           }, "w", function () mymainmenu:show() end),
 
+    -- Media keys
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 2%+", false) end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 2%-", false) end),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle", false) end),
+    awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
+
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end),
     awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1)    end),
