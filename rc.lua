@@ -128,7 +128,7 @@ end
  end
  
  awful.tag.viewidx(0, 1)
- awful.tag.viewidx(0, 2)
+-- awful.tag.viewidx(0, 2)
  
  -- }}}
 
@@ -286,6 +286,12 @@ globalkeys = awful.util.table.join(
                 client.focus:raise()
             end
         end),
+
+    -- Media keys
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 2%+", false) end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 2%-", false) end),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle", false) end),
+    awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
 
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
