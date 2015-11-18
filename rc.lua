@@ -11,6 +11,8 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 
+local comm_tag_index
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -98,37 +100,54 @@ local layouts_named = {
 -- {{{ Wallpaper
 if beautiful.wallpaper then
     for s = 1, screen.count() do
-        gears.wallpaper.maximized(beautiful.wallpaper, s, true)
+        gears.wallpaper.centered(beautiful.wallpaper, s)
     end
 end
 -- }}}
 
  -- {{{ Tags
  -- Define a tag table which will hold all screen tags.
- tags = {
-   names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
-   layout = {
-      layouts_named.tile,
-      layouts_named.tile_fair_horizontal,
-      layouts_named.tile_fair_horizontal,
-      layouts_named.fullscreen,
-      layouts_named.tile,
-      layouts_named.tile,
-      layouts_named.tile,
-      layouts_named.tile,
-      layouts_named.tile
-   }
- --   layout = { layouts[10], layouts[7], layouts[5], layouts[4], layouts[2],
- --              layouts[12], layouts[9], layouts[3], layouts[7]
- -- }
- }
- for s = 1, screen.count() do
-     -- Each screen has its own tag table.
-     tags[s] = awful.tag(tags.names, s, tags.layout)
- end
- 
- awful.tag.viewidx(0, 1)
--- awful.tag.viewidx(0, 2)
+if screen.count() == 1 then
+    comm_tag_index = 4
+    tags = {
+        names  = { "development", "browser", "terminals", "comms", "fullscreen", 6, 7, 8, 9 },
+        layout = {
+            layouts_named.max,
+            layouts_named.tile,
+            layouts_named.tile_fair_horizontal,
+            layouts_named.tile_fair,
+            layouts_named.max,
+            layouts_named.tile,
+            layouts_named.tile,
+            layouts_named.tile,
+            layouts_named.tile
+        }
+    }
+else
+    comm_tag_index = 3
+    tags = {
+        names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
+        layout = {
+            layouts_named.tile,
+            layouts_named.tile_fair_horizontal,
+            layouts_named.tile_fair,
+            layouts_named.max,
+            layouts_named.tile,
+            layouts_named.tile,
+            layouts_named.tile,
+            layouts_named.tile,
+            layouts_named.tile
+        }
+    }
+end
+
+for s = 1, screen.count() do
+    -- Each screen has its own tag table.
+    tags[s] = awful.tag(tags.names, s, tags.layout)
+end
+
+-- always default to one screen
+awful.tag.viewidx(0, 1)
  
  -- }}}
 
@@ -348,11 +367,9 @@ clientkeys = awful.util.table.join(
             c.maximized_vertical   = true
         end),
         
-    -- order of screens from left to right: 3, 2, 1, 4
-    awful.key({ modkey, "Shift"   }, "F1", function (c) awful.client.movetoscreen(c, 3) end),
-    awful.key({ modkey, "Shift"   }, "F2", function (c) awful.client.movetoscreen(c, 2) end),
-    awful.key({ modkey, "Shift"   }, "F3", function (c) awful.client.movetoscreen(c, 1) end),
-    awful.key({ modkey, "Shift"   }, "F4", function (c) awful.client.movetoscreen(c, 4) end)
+    -- only have one or two screens nowadays
+    awful.key({ modkey, "Shift"   }, "F1", function (c) awful.client.movetoscreen(c, 1) end),
+    awful.key({ modkey, "Shift"   }, "F2", function (c) awful.client.movetoscreen(c, 2) end)
 )
 
 -- Bind all key numbers to tags.
@@ -422,9 +439,9 @@ awful.rules.rules = {
       
     {
       -- this should match hangout windows
-      rule_any = { class = {"Google-chrome", "Google-chrome-stable"} },
-      except_any = { instance = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable"} },
-      properties = { tag = tags[1][3] }
+      rule_any = { class = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable", "google-chrome"} },
+      except_any = { instance = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable", "google-chrome"} },
+      properties = { tag = tags[1][comm_tag_index] }
     },
       
     { rule = { class = "gimp" },
@@ -442,11 +459,15 @@ awful.rules.rules = {
         floating = true,
         focus = true
       }
-    },
-    -- Set Firefox to always map on tags number 2 of screen 1.
-    -- { rule = { class = "Firefox" },
-    --   properties = { tag = tags[1][2] } },
+    }
 }
+
+if screen.count() == 1 then
+    awful.rules.rules[#awful.rules.rules+1] = {
+        rule = { class = "Hexchat" },
+        properties = { tag = tags[1][comm_tag_index] }
+    }
+end
 -- }}}
 
 -- {{{ Signals
