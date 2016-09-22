@@ -313,6 +313,7 @@ globalkeys = awful.util.table.join(
     awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
 
     -- Standard program
+    awful.key({ }, "Print", function () awful.util.spawn("shutter -s -e", false) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
