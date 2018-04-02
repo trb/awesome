@@ -433,7 +433,17 @@ awful.rules.rules = {
       rule = {
         class = "jetbrains-idea",
         instance = "sun-awt-X11-XWindowPeer"
-      }, 
+      },
+      properties = {
+        floating = true,
+        focus = true
+      }
+    },
+    {
+      rule = {
+        class = "jetbrains-idea",
+        instance = "sun-awt-X11-XDialogPeer"
+      },
       properties = {
         floating = true,
         focus = true
