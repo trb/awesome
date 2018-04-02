@@ -52,6 +52,9 @@ end
 -- Themes define colours, icons, and wallpapers
 beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
+-- Autostart
+awful.util.spawn("seahorse")
+
 -- This is used later as the default terminal and editor to run.
 terminal = "gnome-terminal"
 editor = os.getenv("EDITOR") or "gedit"
@@ -107,39 +110,21 @@ end
 
  -- {{{ Tags
  -- Define a tag table which will hold all screen tags.
-if screen.count() == 1 then
-    comm_tag_index = 4
-    tags = {
-        names  = { "development", "browser", "terminals", "comms", "fullscreen", 6, 7, 8, 9 },
-        layout = {
-            layouts_named.max,
-            layouts_named.tile,
-            layouts_named.tile_fair_horizontal,
-            layouts_named.tile_fair,
-            layouts_named.max,
-            layouts_named.tile,
-            layouts_named.tile,
-            layouts_named.tile,
-            layouts_named.tile
-        }
+comm_tag_index = 3
+tags = {
+    names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
+    layout = {
+        layouts_named.tile,
+        layouts_named.tile_fair_horizontal,
+        layouts_named.tile_fair,
+        layouts_named.max,
+        layouts_named.tile,
+        layouts_named.tile,
+        layouts_named.tile,
+        layouts_named.tile,
+        layouts_named.tile
     }
-else
-    comm_tag_index = 3
-    tags = {
-        names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
-        layout = {
-            layouts_named.tile,
-            layouts_named.tile_fair_horizontal,
-            layouts_named.tile_fair,
-            layouts_named.max,
-            layouts_named.tile,
-            layouts_named.tile,
-            layouts_named.tile,
-            layouts_named.tile,
-            layouts_named.tile
-        }
-    }
-end
+}
 
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
@@ -309,11 +294,13 @@ globalkeys = awful.util.table.join(
     -- Media keys
     awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 2%+", false) end),
     awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 2%-", false) end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle", false) end),
+    -- mutes playback awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse set Master toggle", false) end),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse set Capture toggle", false) end),
     awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
 
     -- Standard program
     awful.key({ }, "Print", function () awful.util.spawn("shutter -s -e", false) end),
+    awful.key({ "Shift" }, "Print", function () awful.util.spawn("gifine", false) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
@@ -351,7 +338,7 @@ globalkeys = awful.util.table.join(
 clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
-    awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
+    awful.key({ modkey, "Shift"   }, "f",      awful.client.floating.toggle                     ),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
@@ -431,13 +418,7 @@ awful.rules.rules = {
                      floating = false,
                      keys = clientkeys,
                      buttons = clientbuttons } },
-                     
-    { rule = { class = "MPlayer" },
-      properties = { floating = true } },
-      
-    { rule = { class = "pinentry" },
-      properties = { floating = true } },
-      
+                           
     {
       -- this should match hangout windows
       rule_any = { class = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable", "google-chrome"} },
@@ -445,16 +426,13 @@ awful.rules.rules = {
       properties = { tag = tags[1][comm_tag_index] }
     },
       
-    { rule = { class = "gimp" },
-      properties = { floating = true } },
-      
-    { rule = { class = "Kupfer" },
+    { rule_any = { class = { "Kupfer", "gimp", "pinentry", "MPlayer", "Lua5.1" } },
       properties = { floating = true } },
       
     {
       rule = {
         class = "jetbrains-idea",
-        instance = "sun-awt-X11-XDialogPeer"
+        instance = "sun-awt-X11-XWindowPeer"
       }, 
       properties = {
         floating = true,
