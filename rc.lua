@@ -56,7 +56,7 @@ beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 awful.util.spawn("seahorse")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "gnome-terminal"
+terminal = "konsole"
 editor = os.getenv("EDITOR") or "gedit"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -81,7 +81,11 @@ local layouts =
     awful.layout.suit.spiral.dwindle,
     awful.layout.suit.max,
     awful.layout.suit.max.fullscreen,
-    awful.layout.suit.magnifier
+    awful.layout.suit.magnifier,
+    awful.layout.suit.corner.nw,
+    awful.layout.suit.corner.ne,
+    awful.layout.suit.corner.sw,
+    awful.layout.suit.corner.se
 }
 
 local layouts_named = {
@@ -96,7 +100,11 @@ local layouts_named = {
     dwindle = awful.layout.suit.spiral.dwindle,
     max = awful.layout.suit.max,
     fullscreen = awful.layout.suit.max.fullscreen,
-    magnifier = awful.layout.suit.magnifier
+    magnifier = awful.layout.suit.magnifier,
+    nw = awful.layout.suit.corner.nw,
+    ne = awful.layout.suit.corner.ne,
+    sw = awful.layout.suit.corner.sw,
+    se = awful.layout.suit.corner.se
 }
 -- }}}
 
@@ -114,15 +122,15 @@ comm_tag_index = 3
 tags = {
     names  = { "development", "terminals", "comms", "fullscreen", 5, 6, 7, 8, 9 },
     layout = {
-        layouts_named.tile,
+        layouts_named.nw,
         layouts_named.tile_fair_horizontal,
-        layouts_named.tile_fair,
-        layouts_named.max,
-        layouts_named.tile,
-        layouts_named.tile,
-        layouts_named.tile,
-        layouts_named.tile,
-        layouts_named.tile
+        layouts_named.nw,
+        layouts_named.fullscreen,
+        layouts_named.nw,
+        layouts_named.nw,
+        layouts_named.nw,
+        layouts_named.nw,
+        layouts_named.nw
     }
 }
 
@@ -292,15 +300,15 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Media keys
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 2%+", false) end),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 2%-", false) end),
-    -- mutes playback awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse set Master toggle", false) end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse set Capture toggle", false) end),
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) +2%'", false) end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) -2%'", false) end),
+    -- mutes playback
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("sh -c 'pactl set-sink-mute $(pactl list sinks short | grep RUNNING | cut -f1) toggle'", false) end),
     awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
 
     -- Standard program
     awful.key({ }, "Print", function () awful.util.spawn("shutter -s -e", false) end),
-    awful.key({ "Shift" }, "Print", function () awful.util.spawn("gifine", false) end),
+    awful.key({ "Shift" }, "Print", function () awful.util.spawn("peek", false) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
@@ -322,7 +330,7 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     --awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
-    awful.key({ modkey,           }, "r",     function () awful.util.spawn("kupfer") end),
+    awful.key({ modkey,           }, "r",     function () awful.util.spawn("krunner") end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -346,6 +354,7 @@ clientkeys = awful.util.table.join(
         function (c)
             -- The client currently has the input focus, so it cannot be
             -- minimized, since minimized clients can't have the focus.
+            c.maximized = false
             c.maximized_horizontal = false
             c.maximized_vertical   = false
         end),
@@ -426,9 +435,29 @@ awful.rules.rules = {
       properties = { tag = tags[1][comm_tag_index] }
     },
       
-    { rule_any = { class = { "Kupfer", "gimp", "pinentry", "MPlayer", "Lua5.1" } },
+    { rule_any = { class = { "Kupfer", "krunner", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek" } },
       properties = { floating = true } },
       
+    
+    {
+	rule = { class = "krunner" },
+	properties = { floating = true },
+	callback = function(c)
+	    awful.placement.centered(c)
+	end
+    },
+    {
+        rule = { class = "Peek" },
+        properties = { floating = true },
+        callback = function(c)
+            c:geometry({ width = 800, height = 600 })
+            awful.placement.under_mouse(c)
+        end
+    },
+    { 
+      rule = { name = "Slack Call Minipanel" },
+      properties = { floating = true }
+    },
     {
       rule = {
         class = "jetbrains-idea",
@@ -436,7 +465,10 @@ awful.rules.rules = {
       },
       properties = {
         floating = true,
-        focus = true
+        focus = true,
+        focusable = false,
+        ontop = true,
+        placement = awful.placement.restore,
       }
     },
     {
@@ -446,7 +478,10 @@ awful.rules.rules = {
       },
       properties = {
         floating = true,
-        focus = true
+        focus = true,
+        focusable = false,
+        ontop = true,
+        placement = awful.placement.restore,
       }
     }
 }
