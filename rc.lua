@@ -300,8 +300,10 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Media keys
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) +2%'", false) end),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) -2%'", false) end),
+    -- awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) +2%'", false) end),
+    -- awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) -2%'", false) end),
+    awful.key({ modkey }, "=", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) +2%'", false) end),
+    awful.key({ modkey }, "-", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) -2%'", false) end),
     -- mutes playback
     awful.key({ }, "XF86AudioMute", function () awful.util.spawn("sh -c 'pactl set-sink-mute $(pactl list sinks short | grep RUNNING | cut -f1) toggle'", false) end),
     awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
@@ -437,6 +439,14 @@ awful.rules.rules = {
       
     { rule_any = { class = { "Kupfer", "krunner", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek" } },
       properties = { floating = true } },
+
+    -- Make all "jetbrains-idea" windows float by default
+    { rule = { class = "jetbrains-idea" },
+    properties = { floating = true } },
+
+    -- Make the main IDE window not float
+    { rule = { class = "jetbrains-idea", name = ".* – .*" },
+    properties = { floating = false } },
       
     
     {
