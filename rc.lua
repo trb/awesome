@@ -468,32 +468,6 @@ awful.rules.rules = {
       rule = { name = "Slack Call Minipanel" },
       properties = { floating = true }
     },
-    {
-      rule = {
-        class = "jetbrains-idea",
-        instance = "sun-awt-X11-XWindowPeer"
-      },
-      properties = {
-        floating = true,
-        focus = true,
-        focusable = false,
-        ontop = true,
-        placement = awful.placement.restore,
-      }
-    },
-    {
-      rule = {
-        class = "jetbrains-idea",
-        instance = "sun-awt-X11-XDialogPeer"
-      },
-      properties = {
-        floating = true,
-        focus = true,
-        focusable = false,
-        ontop = true,
-        placement = awful.placement.restore,
-      }
-    }
 }
 
 if screen.count() == 1 then
