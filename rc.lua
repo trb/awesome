@@ -306,10 +306,25 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "-", function () awful.util.spawn("sh -c 'pactl set-sink-volume $(pactl list sinks short | grep RUNNING | cut -f1) -2%'", false) end),
     -- mutes playback
     awful.key({ }, "XF86AudioMute", function () awful.util.spawn("sh -c 'pactl set-sink-mute $(pactl list sinks short | grep RUNNING | cut -f1) toggle'", false) end),
-    awful.key({ }, "XF86Calculator", function () awful.util.spawn("gnome-calculator", false) end),
+    awful.key({ }, "XF86Calculator", function () awful.util.spawn("kcalc", false) end),
+    -- for when there is no calculator button
+    awful.key({ "Shift" }, "F1", function () awful.util.spawn("kcalc", false) end),
 
-    -- Standard program
-    awful.key({ }, "Print", function () awful.util.spawn("shutter -s -e", false) end),
+    awful.key({ }, "Print", function ()
+        -- Get the current date and time
+        local date_time = os.date("%Y-%m-%d_%H-%M-%S")
+
+        -- Generate three random characters
+        local random_chars = string.char(math.random(65, 90)) .. string.char(math.random(65, 90)) .. string.char(math.random(65, 90))  -- A-Z
+
+        -- Format the filename inline
+        local filename = string.format("/home/thomas/Pictures/Screenshots/%s_%s.png", date_time, random_chars)
+
+        -- Start Spectacle with the generated filename
+        awful.util.spawn("flameshot gui --path " .. filename, false)
+    end),
+
+    awful.key({ "Ctrl" }, "Print", function () awful.util.spawn("sh -c 'flameshot gui --raw | /home/thomas/Applications/screenshot-uploader/screenshot-uploader'") end),
     awful.key({ "Shift" }, "Print", function () awful.util.spawn("peek", false) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
@@ -437,7 +452,7 @@ awful.rules.rules = {
       properties = { tag = tags[1][comm_tag_index] }
     },
       
-    { rule_any = { class = { "Kupfer", "krunner", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek" } },
+    { rule_any = { class = { "Kupfer", "krunner", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek", "kcalc" } },
       properties = { floating = true } },
 
     -- Make all "jetbrains-idea" windows float by default
@@ -455,6 +470,13 @@ awful.rules.rules = {
 	callback = function(c)
 	    awful.placement.centered(c)
 	end
+    },
+    {
+        rule = { class = "kcalc" },
+        properties = { float = true },
+        callback = function(c)
+            awful.placement.under_mouse(c)
+        end
     },
     {
         rule = { class = "Peek" },
