@@ -324,15 +324,16 @@ globalkeys = awful.util.table.join(
         awful.util.spawn("flameshot gui --path " .. filename, false)
     end),
 
-    awful.key({ "Ctrl" }, "Print", function () awful.util.spawn("sh -c 'flameshot gui --raw | /home/thomas/Applications/screenshot-uploader/screenshot-uploader'") end),
-    awful.key({ "Shift" }, "Print", function () awful.util.spawn("peek", false) end),
+    awful.key({ "Ctrl", }, "Print", function () awful.util.spawn("sh -c 'flameshot gui --raw | /home/thomas/Applications/screenshot-uploader/image-to-clipboard'") end),
+    awful.key({ "Ctrl", "Shift" }, "Print", function () awful.util.spawn("sh -c 'flameshot gui --raw | /home/thomas/Applications/screenshot-uploader/screenshot-uploader'") end),
+    awful.key({ "Shift", }, "Print", function () awful.util.spawn("peek", false) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
     awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("gnome-screensaver-command --lock") end),
 
-    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
-    awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
+    awful.key({ modkey, "Alt_L"   }, "l",     function () awful.tag.incmwfact( 0.05)    end),
+    awful.key({ modkey, "Alt_L"   }, "h",     function () awful.tag.incmwfact(-0.05)    end),
     awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
     awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1)      end),
     awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end),
@@ -446,30 +447,40 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
                            
     {
+
+    { -- General plasma rules
+        rule_any = { class = { "plasashell", "ksmserver-logout-greeter", }, },
+        properties = {
+            floating = true,
+            border_width = 0,
+            titlebars = false, -- custom property to control titlebars
+        },
+
+    },
+
       -- this should match hangout windows
       rule_any = { class = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable", "google-chrome"} },
       except_any = { instance = {"Google-chrome", "Google-chrome-stable", "google-chrome-stable", "google-chrome"} },
       properties = { tag = tags[1][comm_tag_index] }
     },
       
-    { rule_any = { class = { "Kupfer", "krunner", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek", "kcalc" } },
+    { rule_any = { class = { "Kupfer", "spectacle", "gimp", "pinentry", "MPlayer", "Lua5.1", "Peek", "kcalc", "plasmashell", } },
       properties = { floating = true } },
 
     -- Make all "jetbrains-idea" windows float by default
     { rule = { class = "jetbrains-idea" },
     properties = { floating = true } },
-
     -- Make the main IDE window not float
     { rule = { class = "jetbrains-idea", name = ".* – .*" },
     properties = { floating = false } },
       
     
     {
-	rule = { class = "krunner" },
-	properties = { floating = true },
-	callback = function(c)
-	    awful.placement.centered(c)
-	end
+        rule = { class = "krunner" },
+        properties = { floating = true },
+        callback = function(c)
+            awful.placement.under_mouse(c)
+        end
     },
     {
         rule = { class = "kcalc" },
@@ -570,6 +581,7 @@ client.connect_signal("manage", function (c, startup)
         awful.titlebar(c):set_widget(layout)
     end
 end)
+
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
